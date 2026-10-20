@@ -28,8 +28,9 @@ lib_fixups: lib_fixups_user_type = {
 }
 
 blob_fixups: blob_fixups_user_type = {
+    # Surface::connect(int, sp<IProducerListener>, bool) is gone; call connect(int) instead.
     ('system/lib64/libcamera_algoup_jni.xiaomi.so', 'system/lib64/libcamera_mianode_jni.xiaomi.so'): blob_fixup()
-        .add_needed('libgui_shim_miuicamera.so'),
+        .sig_replace('E0 03 13 AA 08 A9 40 F9 E3 03 1F 2A', 'E0 03 13 AA 08 5D 40 F9 E3 03 1F 2A'),
 }  # fmt: skip
 
 module = ExtractUtilsModule(
