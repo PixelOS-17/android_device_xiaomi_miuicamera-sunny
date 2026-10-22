@@ -1,0 +1,52 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Ashwin Devi Srinivasan <ashwin@ashds.dev>
+Date: Thu, 22 Oct 2026 11:36:38 +0400
+Subject: [PATCH] Encode slow motion at the normal frame rate
+
+Mojito records slow motion as a real-time high frame rate file and leaves
+the slowdown to MIUI Gallery, so other players show it at normal speed.
+Keep the profile frame rate and only raise the capture rate, as the app
+already does on devices that encode the slowdown. That file has no
+usable audio track and does not need every frame to be a key frame.
+---
+ .../android/camera/module/video/RecorderController.smali    | 6 ++----
+ .../com/android/camera/module/video/UserRecordSetting.smali | 2 +-
+ 2 files changed, 3 insertions(+), 5 deletions(-)
+
+diff --git a/smali/com/android/camera/module/video/RecorderController.smali b/smali/com/android/camera/module/video/RecorderController.smali
+index 0088da23..3aa78af4 100644
+--- a/smali/com/android/camera/module/video/RecorderController.smali
++++ b/smali/com/android/camera/module/video/RecorderController.smali
+@@ -2379,9 +2379,7 @@
+ 
+     if-nez v4, :cond_14
+ 
+-    const/16 v4, 0xac
+-
+-    if-ne v4, v1, :cond_13
++    goto :cond_13
+ 
+     .line 70
+     invoke-static {}, LOooO00o/OooO0Oo/OooO00o/OooO0O0;->o0O0oooO()LOooO00o/OooO0Oo/OooO00o/OooO0O0;
+@@ -2797,7 +2795,7 @@
+ 
+     move-result v1
+ 
+-    if-nez v1, :cond_1d
++    goto :cond_1d
+ 
+     const-string/jumbo v1, "video-param-i-frames-interval=0.033"
+ 
+diff --git a/smali/com/android/camera/module/video/UserRecordSetting.smali b/smali/com/android/camera/module/video/UserRecordSetting.smali
+index 37f46cf4..58732e41 100644
+--- a/smali/com/android/camera/module/video/UserRecordSetting.smali
++++ b/smali/com/android/camera/module/video/UserRecordSetting.smali
+@@ -2212,7 +2212,7 @@
+ 
+     move-result v3
+ 
+-    xor-int/2addr v3, v2
++    const/4 v3, 0x0
+ 
+     .line 3
+     invoke-virtual {p0}, Lcom/android/camera/module/video/UserRecordSetting;->isNormalMode()Z
