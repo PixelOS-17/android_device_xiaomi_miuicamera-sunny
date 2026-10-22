@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Ashwin Devi Srinivasan <ashwin@ashds.dev>
+Date: Thu, 22 Oct 2026 16:33:19 +0400
+Subject: [PATCH] Name the mojito device watermark
+
+The app looks up the device watermark by Build.DEVICE, and only ships an
+entry for sunny. The sunny tree reports mojito as ro.product.device, so
+the lookup fell back to the generic SHOT ON MI PHONE watermark. Add the
+same Redmi Note 10 entry for mojito.
+---
+ res/values/strings.xml | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/res/values/strings.xml b/res/values/strings.xml
+index 27a7bb42..fbc8ac07 100644
+--- a/res/values/strings.xml
++++ b/res/values/strings.xml
+@@ -460,6 +460,7 @@ and adjust preferences automatically"</string>
+     <string name="back_merlin_global">4:REDMI NOTE 9:AI QUAD CAMERA</string>
+     <string name="back_merlin_india">4:REDMI NOTE 9:AI QUAD CAMERA</string>
+     <string name="back_merlinnfc_global">4:REDMI NOTE 9:AI QUAD CAMERA</string>
++    <string name="back_mojito">4:REDMI NOTE 10</string>
+     <string name="back_monet">4:MI10 LITE 5G:AI QUAD CAMERA</string>
+     <string name="back_nabu">1000:XIAOMI PAD 5</string>
+     <string name="back_odin">3:XIAOMI MIX 4</string>
