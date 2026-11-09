@@ -1,0 +1,38 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Ashwin Devi Srinivasan <ashwin@ashds.dev>
+Date: Mon, 9 Nov 2026 11:49:23 +0400
+Subject: [PATCH] Reset the auto brightness adjustment with NaN
+
+MIUI Camera boosts the screen with a temporary auto brightness
+adjustment of 0.5 and resets it by sending 0.0. The framework only
+treats NaN as no adjustment, so 0.0 stays applied after the camera
+closes. From then on, auto brightness changes skip their ramp and
+jump, and the brightness tracker ignores them. Send NaN for the reset.
+---
+ .../xiaomi/compat/manager/DisplayManagerCompat.smali  | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/smali_classes2/com/xiaomi/compat/manager/DisplayManagerCompat.smali b/smali_classes2/com/xiaomi/compat/manager/DisplayManagerCompat.smali
+index eb492f30..70ddd460 100644
+--- a/smali_classes2/com/xiaomi/compat/manager/DisplayManagerCompat.smali
++++ b/smali_classes2/com/xiaomi/compat/manager/DisplayManagerCompat.smali
+@@ -14,9 +14,18 @@
+ .end method
+ 
+ .method public static setTemporaryAutoBrightnessAdjustment(Landroid/hardware/display/DisplayManager;F)V
+-    .locals 0
++    .locals 1
++
++    const/4 v0, 0x0
++
++    cmpl-float v0, p1, v0
++
++    if-nez v0, :cond_0
++
++    const/high16 p1, 0x7fc00000    # Float.NaN
+ 
+     .line 1
++    :cond_0
+     :try_start_0
+     invoke-virtual {p0, p1}, Landroid/hardware/display/DisplayManager;->setTemporaryAutoBrightnessAdjustment(F)V
+     :try_end_0
