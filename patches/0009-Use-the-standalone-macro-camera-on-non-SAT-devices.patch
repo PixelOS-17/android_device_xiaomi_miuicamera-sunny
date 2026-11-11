@@ -1,0 +1,45 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Ashwin Devi Srinivasan <ashwin@ashds.dev>
+Date: Wed, 11 Nov 2026 11:22:29 +0400
+Subject: [PATCH] Use the standalone macro camera on non-SAT devices
+
+MIUI Camera only reaches its macro camera selection when the HAL
+exposes the SAT or bokeh logical cameras. Without them, every back
+mode returns the main camera before the macro check, so macro mode
+shoots with the main sensor. Open the standalone macro camera first
+whenever the mode has macro enabled.
+---
+ .../loader/camera2/Camera2DataContainer.smali | 20 +++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+
+diff --git a/smali/com/android/camera/module/loader/camera2/Camera2DataContainer.smali b/smali/com/android/camera/module/loader/camera2/Camera2DataContainer.smali
+index daca758f..b5da8ae3 100644
+--- a/smali/com/android/camera/module/loader/camera2/Camera2DataContainer.smali
++++ b/smali/com/android/camera/module/loader/camera2/Camera2DataContainer.smali
+@@ -665,6 +665,26 @@
+ 
+     if-eq p2, v5, :cond_4
+ 
++    :try_start_macro
++    invoke-static {p2}, Lcom/android/camera/CameraSettings;->isMacroModeEnabled(I)Z
++
++    move-result v4
++
++    if-eqz v4, :cond_macro_1
++
++    invoke-virtual {p0}, Lcom/android/camera/module/loader/camera2/Camera2DataContainer;->getStandaloneMacroCameraId()I
++
++    move-result v4
++    :try_end_macro
++    .catchall {:try_start_macro .. :try_end_macro} :catchall_0
++
++    if-eq v4, v3, :cond_macro_1
++
++    monitor-exit p0
++
++    return v4
++
++    :cond_macro_1
+     :try_start_uw
+     invoke-static {p2}, Lcom/android/camera/CameraSettings;->getRetainZoom(I)F
+ 
